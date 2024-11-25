@@ -6,6 +6,7 @@ import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,15 +20,16 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Data
+@Entity
 @Table(name = "projects")
 public class Project implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="project_id")
+    @Column(name="project_id", nullable = true )
     private int projectId;
 
-    @Column(name="project_name")
+    @Column(name="project_name", nullable = true, unique = true)
     private String projectName;
 
     @Column(name="description")
@@ -45,19 +47,21 @@ public class Project implements Serializable {
     @Column(name="demo_url")
     private String demoUrl;
 
-    @Column(name="picture")
+    @Column(name="picture", nullable = true)
     private String picture;
-
-    //Falta hacer la columna de la CLAVES FORANEAS
 
     //relacion N:1 con status
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "status_status_id", referencedColumnName ="status_id")
     private Status statusProject;
 
-    @ManyToMany(cascade= {CascadeType.ALL}, mappedBy="projects")
+    //relacion N:M con technologies
+    @ManyToMany(cascade= {CascadeType.ALL}, mappedBy="projectsTechnologies")
     private List<Technology> technologies;
 
+    //relacion N:M con developers
+    @ManyToMany(cascade = {CascadeType.ALL}, mappedBy="projectsDeveloping")
+    private List<Developer> developersWorkingOnProjects;
     
     
 
