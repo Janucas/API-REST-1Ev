@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -28,20 +29,29 @@ public class ProjectServiceImpl implements ProjectServiceI {
     private ProjectRepositoryI projectRepository;
   
     @Override
-    public ResponseEntity<List<Project>> getAllProjects() {
-        List<Project> projects = projectRepository.findAll();
-        return ResponseEntity.ok(projects);
-    }
-    @Override
-    public ResponseEntity<ProjectDTO> getProjectByWord(String word) {
-        Optional<Project> projectOptional = projectRepository.findByProjectName(word);
-        if (projectOptional.isPresent()) {
-            Project project = projectOptional.get();
+    public Page<ProjectDTO> getAllProjects(Pageable pageable) {
+        Page <Project> projects = projectRepository.findAll(pageable);
+
+        List<ProjectDTO> projectsDTO = new ArrayList<>();
+        for (Project project : projects) {
             ProjectDTO projectDTO = new ProjectDTO(project);
-            
-            return ResponseEntity.ok(projectDTO);
-        }else{
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);        }
+            projectsDTO.add(projectDTO);
+        }
+        return new PageImpl<>(projectsDTO, pageable, projects.getTotalElements());
+    }
+    
+    @Override
+    public Page<ProjectDTO> getProjectByWord(Pageable pageable, String word) {
+
+        Page<Project> projects = projectRepository.findByProjectNameContaining(word, pageable);
+
+        List<ProjectDTO> projectsDTO = new ArrayList<>();
+        for (Project project : projects) {
+            ProjectDTO projectDTO = new ProjectDTO(project);
+            projectsDTO.add(projectDTO);
+        }
+        return new PageImpl<>(projectsDTO, pageable, projects.getTotalElements());
+
     }
    
 
@@ -52,15 +62,37 @@ public class ProjectServiceImpl implements ProjectServiceI {
     }
 
     @Override
-    public ResponseEntity<Project> updateProject(int id, Project project) {
-        if (projectRepository.existsById(id)) {
-            project.setProjectId(id);
-            Project updatedProject = projectRepository.save(project);
+public ResponseEntity<Project> updateProject(int id, Project project) {
+    try {
+        Optional<Project> projectOptional = projectRepository.findById(id);
+        if (projectOptional.isPresent()) {
+            Project projectToUpdate = projectOptional.get();
+            if (project.getProjectName() != null && !projectToUpdate.getProjectName().equals(project.getProjectName())) {
+                Optional<Project> existingProject = projectRepository.findByProjectName(project.getProjectName());
+                if (existingProject.isPresent()) {
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+                }
+                projectToUpdate.setProjectName(project.getProjectName());
+            }
+            projectToUpdate.setProjectDescription(project.getProjectDescription());
+            projectToUpdate.setStartDate(project.getStartDate());
+            projectToUpdate.setEndDate(project.getEndDate());
+            projectToUpdate.setRepositoryUrl(project.getRepositoryUrl());
+            projectToUpdate.setDemoUrl(project.getDemoUrl());
+            projectToUpdate.setPicture(project.getPicture());
+            projectToUpdate.setStatusProject(project.getStatusProject());
+            projectToUpdate.setTechnologies(project.getTechnologies());
+            projectToUpdate.setDevelopersWorkingOnProjects(project.getDevelopersWorkingOnProjects());
+            Project updatedProject = projectRepository.save(projectToUpdate); // Corregido aquí para usar `projectToUpdate`
             return ResponseEntity.ok(updatedProject);
         } else {
             return ResponseEntity.notFound().build();
         }
+    } catch (DataIntegrityViolationException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
     }
+}
+
 
     @Override
     public ResponseEntity<Void> deleteProject(int id) {
@@ -71,6 +103,8 @@ public class ProjectServiceImpl implements ProjectServiceI {
             return ResponseEntity.notFound().build();
         }
     }
+   
+
 }
    
   
