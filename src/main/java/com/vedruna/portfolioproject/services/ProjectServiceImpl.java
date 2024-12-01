@@ -1,13 +1,16 @@
 package com.vedruna.portfolioproject.services;
 
 import java.net.http.HttpClient;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,16 +26,11 @@ public class ProjectServiceImpl implements ProjectServiceI {
 
     @Autowired
     private ProjectRepositoryI projectRepository;
+  
     @Override
-    public Page<ProjectDTO> getAllProjects(Pageable pageable) {
-        Page <Project> projects = projectRepository.findAll(pageable);
-
-        List<ProjectDTO> projectsDTO = new ArrayList<>();
-        for (Project project : projects) {
-            ProjectDTO projectDTO = new ProjectDTO(project);
-            projectsDTO.add(projectDTO);
-        }
-        return new PageImpl<>(projectsDTO, pageable, projects.getTotalElements());
+    public ResponseEntity<List<Project>> getAllProjects() {
+        List<Project> projects = projectRepository.findAll();
+        return ResponseEntity.ok(projects);
     }
     @Override
     public ResponseEntity<ProjectDTO> getProjectByWord(String word) {
@@ -45,55 +43,36 @@ public class ProjectServiceImpl implements ProjectServiceI {
         }else{
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);        }
     }
+   
+
     @Override
-    public ResponseEntity<ProjectDTO> createProject(Project project) {
-    try {
+    public ResponseEntity<Project> saveProject(Project project) {
         Project savedProject = projectRepository.save(project);
-        ProjectDTO projectDTO = new ProjectDTO(savedProject);
-        return ResponseEntity.status(HttpStatus.CREATED).body(projectDTO);
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        return ResponseEntity.ok(savedProject);
     }
-}
+
     @Override
-    public ResponseEntity<ProjectDTO> updateProject(Project project, int id) {
-        try {
-            // Buscar el proyecto por el ID
-            Optional<Project> existingProjectOptional = projectRepository.findById(id);
-    
-            // Si el proyecto no existe, retornar un error 404
-            if (!existingProjectOptional.isPresent()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            }
-    
-            // Obtener el proyecto existente
-            Project existingProject = existingProjectOptional.get();
-    
-            // Actualizar los campos del proyecto con los valores proporcionados
-            existingProject.setProjectName(project.getProjectName());
-            existingProject.setProjectDescription(project.getProjectDescription());
-            existingProject.setStartDate(project.getStartDate());
-            existingProject.setEndDate(project.getEndDate());
-            existingProject.setRepositoryUrl(project.getRepositoryUrl());
-            existingProject.setDemoUrl(project.getDemoUrl());
-            existingProject.setPicture(project.getPicture());
-            existingProject.setStatusProject(project.getStatusProject());
-            existingProject.setTechnologies(project.getTechnologies());
-            existingProject.setDevelopersWorkingOnProjects(project.getDevelopersWorkingOnProjects());
-    
-            // Guardar el proyecto actualizado
-            Project updatedProject = projectRepository.save(existingProject);
-    
-            // Convertir el proyecto actualizado a DTO y devolverlo en la respuesta
-            ProjectDTO projectDTO = new ProjectDTO(updatedProject);
-            return ResponseEntity.ok(projectDTO);
-    
-        } catch (Exception e) {
-            // Manejo de errores: si algo falla, retornamos un error 500
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    public ResponseEntity<Project> updateProject(int id, Project project) {
+        if (projectRepository.existsById(id)) {
+            project.setProjectId(id);
+            Project updatedProject = projectRepository.save(project);
+            return ResponseEntity.ok(updatedProject);
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
 
-
-    
+    @Override
+    public ResponseEntity<Void> deleteProject(int id) {
+        if (projectRepository.existsById(id)) {
+            projectRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
+   
+  
+  
+   
