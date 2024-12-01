@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 public class TechnologyDTO {
     
+    //Declaracion de variables
     private int technology_id;
     private String technology_name;
     

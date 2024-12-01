@@ -10,17 +10,19 @@ import com.vedruna.portfolioproject.persistance.repository.DeveloperRepositoryI;
 @Service
 public class DeveloperServiceImpl implements DeveloperServiceI {
     
+    //Interactua con la capa anterior
     @Autowired
     private DeveloperRepositoryI developerRepository;
 
+
+    //Metodo para crear un nuevo desarrollador
     @Override
     public ResponseEntity<Developer> saveDeveloper(Developer developer) {
         Developer savedDeveloper = developerRepository.save(developer);
         return ResponseEntity.ok(savedDeveloper);
     }
 
-  
-
+    //Metodo para borrar un desarrollador
     @Override
     public ResponseEntity<Void> deleteDeveloper(int id) {
         if (developerRepository.existsById(id)) {

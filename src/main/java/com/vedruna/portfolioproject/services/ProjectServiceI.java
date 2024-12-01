@@ -12,10 +12,10 @@ import com.vedruna.portfolioproject.persistance.models.Project;
 
 public interface ProjectServiceI {
 
-    Page<ProjectDTO> getAllProjects(Pageable pageable);
+    Page<ProjectDTO> getAllProjects(Pageable pageable); //Devuelve todos los proyectos pajeados
     Page<ProjectDTO> getProjectByWord(Pageable pageable, String word);//Busca un proyecto por palabra clave
-    ResponseEntity<Project> saveProject(Project project);
-    ResponseEntity<Project> updateProject(int id, Project project);
-    ResponseEntity<Void> deleteProject(int id);
+    ResponseEntity<Project> saveProject(Project project); //Crea un nuevo proyecto
+    ResponseEntity<Project> updateProject(int id, Project project); //Actualiza un proyecto por su id 
+    ResponseEntity<Void> deleteProject(int id); //Borra un proyecto por su id
     
 }

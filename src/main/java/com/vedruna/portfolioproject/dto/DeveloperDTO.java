@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 public class DeveloperDTO {
 
+    //Declaracion de variables
     private int developer_id;
     private String developer_name;
     private String developer_surname;
