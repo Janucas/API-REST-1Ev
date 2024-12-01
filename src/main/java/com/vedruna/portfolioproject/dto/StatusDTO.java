@@ -8,6 +8,7 @@ import lombok.Data;
 
 public class StatusDTO {
     
+    //Declarcion de variables
     private int status_id;
     private String status_name;
     

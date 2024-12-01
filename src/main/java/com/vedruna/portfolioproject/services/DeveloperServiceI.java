@@ -8,7 +8,7 @@ import com.vedruna.portfolioproject.persistance.models.Developer;
 
 public interface DeveloperServiceI {
    
-    ResponseEntity<Developer> saveDeveloper(Developer developer);
-    ResponseEntity<Void> deleteDeveloper(int id);
+    ResponseEntity<Developer> saveDeveloper(Developer developer); //Crear un nuevo programador
+    ResponseEntity<Void> deleteDeveloper(int id); //Borrar un programador introduciendo su id
     
 }

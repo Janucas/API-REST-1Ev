@@ -17,9 +17,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "technologies")
+@Table(name = "technologies") //nombre de la tabla en la BD
 public class Technology implements Serializable {
 
+        //Declaracion de los distintos atributos siguiendo el modelo en la bd con algunas de sus restricciones
     @Id
     @Column(name = "tech_id", nullable = true)
     private int techId;

@@ -18,9 +18,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "developers")
+@Table(name = "developers")//nombre de la tabla en la BD
 public class Developer implements Serializable{
 
+    //Declaracion de los distintos atributos siguiendo el modelo en la bd con algunas de sus restricciones
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "dev_id",  unique = true, nullable = true)

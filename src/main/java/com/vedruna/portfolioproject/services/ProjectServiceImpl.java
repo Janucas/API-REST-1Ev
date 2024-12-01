@@ -25,9 +25,11 @@ import com.vedruna.portfolioproject.persistance.repository.ProjectRepositoryI;
 @Service
 public class ProjectServiceImpl implements ProjectServiceI {
 
+    //Interaccion con la capa anterior
     @Autowired
     private ProjectRepositoryI projectRepository;
   
+    //Metodo para mostrar todos los proyectos paginados
     @Override
     public Page<ProjectDTO> getAllProjects(Pageable pageable) {
         Page <Project> projects = projectRepository.findAll(pageable);
@@ -40,6 +42,7 @@ public class ProjectServiceImpl implements ProjectServiceI {
         return new PageImpl<>(projectsDTO, pageable, projects.getTotalElements());
     }
     
+    //Metodo paginado para buscar proyectos por palabra clave
     @Override
     public Page<ProjectDTO> getProjectByWord(Pageable pageable, String word) {
 
@@ -55,19 +58,22 @@ public class ProjectServiceImpl implements ProjectServiceI {
     }
    
 
+    //Metodo para crear proyectos nuevos
     @Override
     public ResponseEntity<Project> saveProject(Project project) {
         Project savedProject = projectRepository.save(project);
         return ResponseEntity.ok(savedProject);
     }
 
+
+    //Metodo para actualizar proyectos por su id
     @Override
 public ResponseEntity<Project> updateProject(int id, Project project) {
     try {
-        Optional<Project> projectOptional = projectRepository.findById(id);
+        Optional<Project> projectOptional = projectRepository.findById(id); //Busca el proyecto por su id
         if (projectOptional.isPresent()) {
             Project projectToUpdate = projectOptional.get();
-            if (project.getProjectName() != null && !projectToUpdate.getProjectName().equals(project.getProjectName())) {
+            if (project.getProjectName() != null && !projectToUpdate.getProjectName().equals(project.getProjectName())) { //Comprueba el nombre del proyecto 
                 Optional<Project> existingProject = projectRepository.findByProjectName(project.getProjectName());
                 if (existingProject.isPresent()) {
                     return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
@@ -83,7 +89,7 @@ public ResponseEntity<Project> updateProject(int id, Project project) {
             projectToUpdate.setStatusProject(project.getStatusProject());
             projectToUpdate.setTechnologies(project.getTechnologies());
             projectToUpdate.setDevelopersWorkingOnProjects(project.getDevelopersWorkingOnProjects());
-            Project updatedProject = projectRepository.save(projectToUpdate); // Corregido aquí para usar `projectToUpdate`
+            Project updatedProject = projectRepository.save(projectToUpdate); 
             return ResponseEntity.ok(updatedProject);
         } else {
             return ResponseEntity.notFound().build();
@@ -94,6 +100,7 @@ public ResponseEntity<Project> updateProject(int id, Project project) {
 }
 
 
+    //Metodo para eliminar proyectos por su id
     @Override
     public ResponseEntity<Void> deleteProject(int id) {
         if (projectRepository.existsById(id)) {

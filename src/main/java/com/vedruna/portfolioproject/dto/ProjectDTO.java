@@ -12,6 +12,8 @@ import lombok.Data;
 
 @Data
 public class ProjectDTO {
+
+    //Declaracion de atributos
     private int project_id;
     private String project_name;
     private String description;
